@@ -1,3 +1,0 @@
-Sitemap: https://clsld.gitee.io/sitemap.xml
-
-User-agent: *

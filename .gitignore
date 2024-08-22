@@ -1,7 +1,5 @@
-'node_modules' 
-'.temp' 
-'.cache' 
-".git"
-"public/"
-"docs/blogs/flamingo"
-node_modules
+
+node_modules/
+src/.vuepress/.cache/
+src/.vuepress/.temp/
+src/.vuepress/dist/
