@@ -1,6 +1,6 @@
 ---
 
-icon: circle-info
+icon: book
 # cover: /assets/images/cover3.jpg
 ---
 # intro

@@ -5,7 +5,6 @@ import { enSidebar, zhSidebar } from "./sidebar/index.js";
 
 export default hopeTheme({
   hostname: "https://github.com/coderclsld/coderclsld.github.io",
-
   author: {
     name: "clsld",
     url: "https://github.com/coderclsld",
