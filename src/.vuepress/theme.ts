@@ -62,19 +62,14 @@ export default hopeTheme({
     "/": {
       // navbar
       navbar: enNavbar,
-
       // sidebar
       sidebar: enSidebar,
-
-      footer: "Default footer",
-
+      footer: "",
       displayFooter: true,
-
       blog: {
-        description: "A FrontEnd programmer",
+        description: "about me",
         intro: "/intro.html",
       },
-
       metaLocales: {
         editLink: "Edit this page on GitHub",
       },

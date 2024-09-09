@@ -7,13 +7,10 @@ export default defineUserConfig({
   locales: {
     "/": {
       lang: "en-US",
-      title: "Clsld 's blog",
-      description: "A blog demo for vuepress-theme-hope",
+      title: "clsld 's blog",
     },
   },
-
   theme,
-
   // Enable it with pwa
-  // shouldPrefetch: false,
+  shouldPrefetch: true,
 });
