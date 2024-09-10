@@ -7,7 +7,7 @@ tag:
   - Go
 ---
 # channel
-### channel的数据结构
+## channel的数据结构
 
 - channel内部数据结构是固定长度的**双向循环链表**
 - 按顺序往里面写数据，写满后又从零开始写
@@ -15,21 +15,16 @@ tag:
 
 ```go
 type hchan struct {
-  
   qcount uint //当前队列中总元素个数 
   dataqsiz uint //环形队列长度，即缓冲区大小
   buf unsafe.Pointer //环形队列指针
   elemsize unit64// buf中每个元素的大小
-    
   closed uint32//单签通道是否处于关闭状态，创建通道时该字段为0，关闭时字段为1
   elemtype *_type // 元素类型，用于值传过程的赋值  
-    
   sendx uint //环形缓冲区中已发送位置索引
   revx uint //环形缓冲区中已接收为索引
-    
   recvq waitq //等待读消息的routine队列
   sendq waitq //等待发送消息的routine队列
-    
   lock mutex //互斥锁，为每个读写操作锁定通道（发送和接收必须互斥）
 }
 
@@ -42,7 +37,7 @@ type waitq struct {
 
 
 
-### 创建channel
+## 创建channel
 
 创建channel时，可以往channel中放入不同类型的数据，不同数据占用的空间大小也不一样，这决定了hchan和hchan中的buf字段需要开辟多大的存储空间，在go中需要对不同的情况进行处理，包含三种情况
 > 总体原则是:总内存大小 = hchan需要的内存大小 + 元素需要的内存大小
@@ -75,10 +70,10 @@ func makechan(t *chantype,size int) *hchan{
   return c
 }
 ```
-### 发送数据到channel
-发送数据到channel，直观的理解就是将数据放到chan的环形队列中，不过go做了一些优化，先判断是否有等待接收数据的groutine，如果有直接将数据发送给groutine，就不放进队列中了。当然还有一种情况就是队列如果满了，那就只能放到队列中等待，知道有数据被取走才发送。
+## 发送数据到channel
+发送数据到channel，直观的理解就是将数据放到chan的环形队列中，不过go做了一些优化，先判断是否有等待接收数据的groutine，如果有直接将数据发送给groutine，就不放进队列中了。当然还有一种情况就是环形队列如果满了，那就只能将 goroutine 和数打包放到sendq中等待。
 
-1.如果recvq不为空，从recvq中取出一个等待接收数据的Groutine，将数据发送给Groutine
+1.如果recvq不为空，从recvq中取出一个等待接收数据的Groutine，将数据发送给Goroutine
 2.如果recvq为空，才将数据放入buf中
 3.如果buf已满，则将要发送的数据和当前的Groutine打包成Sudog对象放入sendq，并将groutine设置为等待状态
 
@@ -181,7 +176,7 @@ func send(c *hchan,sg *sudog,ep unsafe.Pointer,unlock func(),skip int){
 }
 ```
 ### 读取数据
-从channel读取数据时，不是直接去环形队列中去哪数据，而是先判断是否有等待发送数据的goroutine，如果有直接将groutine出队列，取出数据返回，并唤醒groutine，如果没有等待发送数据的groutine，再从环形队列中取数据。
+从channel读取数据时，不是直接去环形队列中去拿数据，而是先判断是否有等待发送数据的goroutine，如果有直接将groutine出队列，取出数据返回，并唤醒groutine，如果没有等待发送数据的groutine，再从环形队列中取数据。
 
 1、如果有等待发送数据的goroutine，从sendq中取出一个等待发送数据的groutine，取出数据
 2、如果没有等待的groutine，且环形队列中有数据，从队列中取出数据
@@ -334,28 +329,51 @@ ch是长度为4的带缓冲的channel，G1是发送者，G2是接受者
 
 可以发现整个过程中，G1和G2没有共享内存，底层是通过hchan结构体的buf并使用copy内存的方式进行通信的。
 
-#### 那么当chanel中的缓存存满了之后会发生什么呢？
+## Question
+
+1. 那么当chanel中的缓存存满了之后会发生什么呢？
 
 当G1向buf已经满了的ch发送数据的时候，检测到hchan的buf已经满了，会通知调度器，调度器会将G1的状态设置为waiting, 并移除与线程M的联系，然后从P的runqueue中选择一个goroutine在线程M中执行，此时G1就是阻塞状态。当G1变为waiting状态后，会创建一个代表自己的sudog的结构，然后放到sendq这个list中，sudog结构中保存了channel相关的变量的指针(如果该Goroutine是sender，那么保存的是待发送数据的变量的地址，如果是receiver则为接收数据的变量的地址，之所以是地址，前面我们提到在传输数据的时候使用的是copy的方式)，当G2从ch中接收一个数据时，会通知调度器，设置G1的状态为runnable，然后将加入P的runqueue里，等待线程执行.
 
 
 
-#### 如果是前面我们是假设G1先运行，如果G2先运行会怎么样？
+2. 如果是前面我们是假设G1先运行，如果G2先运行会怎么样？
 
-如果G2先运行，那么G2会从一个empty的channel里取数据，这个时候G2就会阻塞，和前面介绍的G1阻塞一样，G2也会创建一个sudog结构体，保存接收数据的变量的地址，但是该sudog结构体是放到了recvq列表里。当G1向ch发送数据的时候，为了提升效率，**runtime并不会对hchan结构体题的buf进行加锁，而是直接将G1里的发送到ch的数据copy到了G2 sudog里对应的elem指向的内存地址！【不通过buf】**
-
-
-
-#### 为什么G1向缓存满了的channel中发送数据时被阻塞，在G2后来接收时，不将阻塞的G1发送的数据直接拷贝到G2中呢？
-
-这是因为channel中的数据时队列的，要保证顺序，当有消费者G2接收数据时，需要先接收缓存中的数据。
+如果G2先运行，那么G2会从一个empty的channel里取数据，这个时候G2就会阻塞，和前面介绍的G1阻塞一样，G2也会创建一个sudog结构体，保存接收数据的变量的地址，但是该sudog结构体是放到了recvq列表里。当G1向ch发送数据的时候，为了提升效率，**runtime并不会对hchan结构体题的buf进行加锁，而是直接将G1里的发送到ch的数据copy到了G2 sudog里对应的elem指向的内存地址！【不通过buf，empty channel 的情况下】**
 
 
 
-#### 多个goroutine向有缓存的channel接收发送数据时，是可以保证顺序的吗？
+3. 为什么G1向缓存满了的channel中发送数据时被阻塞，在G2后来接收时，不将阻塞的G1发送的数据直接拷贝到G2中呢？
+
+这是因为channel中的数据是队列的，要保证顺序，当有消费者G2接收数据时，需要先接收缓存中的数据。
+
+
+
+4. 多个goroutine向有缓存的channel接收发送数据时，是可以保证顺序的吗？
 
 不能，channel中的数据遵循先进先出原则，每一个goroutine并不能保证先从channel中获取数据，或者发送数据，但是先执行的goroutine与后执行的goroutine在channel中获取的数据肯定是有序的。
 
-#### channel为什么是线程安全的？
+
+
+5. channel为什么是线程安全的？
 
 在对buf的数据进行入队和出队的操作时，为当前channel使用了互斥锁，防止多个线程并发修改数据
+
+
+
+6. 对已关闭的 channel 进行读写会怎么样？
+
+读已经关闭的 chan能一直读到东西，但是读到的内容根据通道内关闭前是否有元素而不同
+
+如果 chan 关闭前 buffer 有元素还未读，会正确读取到 chan 内的值，且返回的第二个bool 值（是否读取成功）为 true
+
+如果 chan 关闭前，buffer 内有元素已经被读完，chan 内无值，接下来所有接收的值都会非阻塞直接成功，返回 channel 元素零值，但是第二个 bool 值一直为 false
+
+写已经关闭的 chan 会 panic
+
+
+
+7. 对未初始化的 channel 进行读写会怎么样？
+
+读写为初始化的 chan 会阻塞
+

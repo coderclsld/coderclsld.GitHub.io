@@ -2,7 +2,7 @@
  
 date: 2024-08-22
 category:
-  - planlearn
+  - k8s
 tag:
   - kubernetes
   - prometheus

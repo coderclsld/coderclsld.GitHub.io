@@ -74,12 +74,3 @@ func IsNil(i interface{}) bool{
     return vi.IsNil()
 }
 ```
-
-~~0、先把简历改一下~~
-~~1、interface底层原理~~
-2、刷一下golang的算法题
-3、kubernetes集群搭建一下
-4、回顾一下四个面试视频，提取关键信息
-~~5、重要的事情，两点要投递简历~~
-6、一些问题和回答准备
-7、raft算法
