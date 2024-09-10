@@ -43,6 +43,10 @@ export const enSidebar = sidebar({
       // icon: "book",
       prefix: "tools/",
       children: "structure",
+    },
+    {
+      text:"关于我",
+      link:"README.html"
     }
   ],
 });
