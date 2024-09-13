@@ -45,6 +45,18 @@ export const enSidebar = sidebar({
       children: "structure",
     },
     {
+      text: "👀 k8s",
+      // icon: "book",
+      prefix: "k8s/",
+      children: "structure",
+    },
+    {
+      text: "☎️ 面试",
+      // icon: "book",
+      prefix: " interview/",
+      children: "structure",
+    },
+    {
       text:"关于我",
       link:"README.html"
     }

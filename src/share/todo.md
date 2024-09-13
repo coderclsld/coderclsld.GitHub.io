@@ -91,6 +91,12 @@ tag:
 
 ### k8s
 
+​	✅mutilpass 部署
+
+​	✅安装 k8s 的文档写完
+
+​	安装一下 garafana 和Prometheus输出文档
+
 ​	ServiceAccount 是什么
 
 ​	helm
