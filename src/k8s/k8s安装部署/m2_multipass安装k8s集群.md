@@ -30,6 +30,20 @@ multipass launch --name cluster-node01 --cpus 2 --mem 2048M --disk 5G
 
 ## Ubuntu环境设置
 
+配置ssh远程连接
+
+```yaml
+修改 /etc/ssh/sshd_config
+PermitRootLogin yes
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication yes
+
+sudo /etc/init.d/ssh restart
+```
+
+
+
 以 cluster-master为例，cluster-node01操作相同
 
 ```shell
@@ -232,11 +246,10 @@ version = 2
       [plugins."io.containerd.grpc.v1.cri".registry.headers]
  
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."192.168.40.62"]
-            endpoint = ["https://192.168.40.62:443"]
-          [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
-             endpoint = ["https://vh3bm52y.mirror.aliyuncs.com","https://registry.docker-cn.com"]
- 
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
+endpoint=["https://dockerproxy.com", "https://mirror.baidubce.com","https://ccr.ccs.tencentyun.com","https://docker.m.daocloud.io","https://docker.nju.edu.cn","https://docker.mirrors.ustc.edu.cn","https://registry-1.docker.io", "https://hbv0b596.mirror.aliyuncs.com"]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.k8s.io"]
+endpoint=["https://dockerproxy.com", "https://mirror.baidubce.com","https://ccr.ccs.tencentyun.com","https://docker.m.daocloud.io","https://docker.nju.edu.cn","https://docker.mirrors.ustc.edu.cn","https://hbv0b596.mirror.aliyuncs.com", "https://k8s.m.daocloud.io", "https://docker.mirrors.ustc.edu.cn","https://hub-mirror.c.163.com"]
     [plugins."io.containerd.grpc.v1.cri".x509_key_pair_streaming]
       tls_cert_file = ""
       tls_key_file = ""

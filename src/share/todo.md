@@ -37,36 +37,6 @@ tag:
 
 ​	Ansible
 
-​	创建个环境搭建一下Prometheus grafana，出一篇文章
-
-### 音视频（**太难了，跨领域了暂时不深入**）
-
-#### 	ffmpeg、webRTC音视频原理和使用（使用过 ffmpeg工具）
-
-#### 	音视频系统入门
-
-​		音频三要素
-
-​		编码
-
-​		音视频数据采集、FLV/RTMP
-
-​		可商用的RTMP流媒体服务器
-
-#### 	ffmpeg
-
-​		ffmpeg的运行机制
-
-​		音视频同步，音视频线程的协作
-
-​		FFmpeg编程实战
-
-#### 	WebRTC 入门与实战（实时互动直播）
-
-​		WebRTC的工作原理
-
-​		如何采集音视频，媒体协商，以及理底层的ICE、P2P、DTLS-SRTP、RTP/RTCP、STUN等		
-
 ### database
 
 ​	mysql
@@ -113,7 +83,9 @@ tag:
 
 ### AIGC
 
-​	大语言模型、prompt（目前看到的岗位趋势，背靠人工智能业务）		
+​	大语言模型、prompt、RAG、langchain、llama3（目前看到的岗位趋势，背靠人工智能业务）
+
+​	chatgpt、tts		
 
 ### 分布式事务
 
@@ -121,4 +93,9 @@ tag:
 
 ​	
 
-​	
+
+
+周末找个时间复习一下学过的技术知识点，为面试做好准备
+
+然后webRTC的内容可以看一下，包括音视频的相关技术
+
