@@ -58,6 +58,7 @@ net.bridge.bridge-nf-call-ip6tables = 1
 net.ipv4.ip_forward                 = 1
 EOF
 
+#如果报错tee: /proc/sys/net/bridge/bridge-nf-call-iptables: No such file or directory，执行modprobe  br_netfilter
 echo '1' | sudo tee /proc/sys/net/bridge/bridge-nf-call-iptables
 
 sudo vim /etc/sysctl.conf
@@ -353,6 +354,7 @@ endpoint=["https://dockerproxy.com", "https://mirror.baidubce.com","https://ccr.
 ```shell
 #启动containerd服务
 systemctl enable containerd
+systemctl daemon-reload
 systemctl restart containerd
 ```
 
@@ -391,9 +393,13 @@ kubeadm init --kubernetes-version=v1.28.2 --pod-network-cidr=10.244.0.0/16 --ser
 初始化成功后复制一下终端输出的 join token command后面加入node 节点的时候需要用到，例如：
 
 ```shell
-kubeadm join 192.168.64.11:6443 --token 8t5yyu.v21j2vcjitjxhb4u \
---discovery-token-ca-cert-hash sha256:76e6565509b76c16874c27f157864fcd95a53d88fb9f00dd9ea2aeb7c7e31858
+kubeadm join 192.168.0.107:6443 --token ih0yxq.1xpqtf5pksenm0gy \
+        --discovery-token-ca-cert-hash sha256:32c4ad2ad4a7b6debf1a7dfbfef7e405f24b3fed1235f2ee0c9aec041c445a09 
 ```
+
+#### 如果报错`[ERROR FileContent--proc-sys-net-ipv4-ip_forward]: /proc/sys/net/ipv4/ip_forward contents are not set to 1` 执行`echo 1 > /proc/sys/net/ipv4/ip_forward`
+
+
 
 ### 设置 kubectl 访问 kube-apiserver
 
@@ -412,6 +418,15 @@ wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-
 kubectl apply -f kube-flannel.yml
 ```
 
+## 部署calico(和flannel二选一)
+
+```shell
+wget https://docs.projectcalico.org/v3.25/manifests/calico.yaml --no-check-certificate
+kubectl apply -f calico.yaml
+```
+
+
+
 拉不下来网页范围链接拷贝后写文件。
 
 containerd 拉去不下来就得换源或者配置代理，这里我提供配置代理的技巧拉去镜像。假设我们电脑上有 代理vpn 了，那么基本上代理的端口为7890，具体得看不同软件。我这里以 clashx 为例
@@ -425,3 +440,10 @@ export https_proxy=http://192.168.0.105:7890 http_proxy=http://192.168.0.105:789
 ```
 
 配置完代理后通过` ctr  -n k8s.io i pull docker.io/flannel/flannel:v0.25.6`下载拉去不下来的镜像，下载完成镜像后可以重置代理恢复初始化的代理配置`unset http_proxy https_proxy all_proxy`
+
+```
+images=$(grep 'image:' kube-flannel.yml | awk '{print $2}')
+for image in $images; do
+    ctr -n k8s.io image pull $image
+done
+```

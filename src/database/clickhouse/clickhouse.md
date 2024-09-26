@@ -78,6 +78,14 @@ merge_with_ttl_timeout：提供了数据的ttl功能
 storage_policy：多路储存
 ```
 
+#### MergeTree分区合并
+
+MergeTree的分区目录并不是在数据表被创建之后就存在的，而是在数据写入过程中被创建的。也就是说如果一张数据表没有任何数据，那么也不会有任何分区目录存在。MergeTree的分区目录伴随着每一批数据的写入，MergeTree都会生成一批新的分区目录。即便不同批次写入的数据属于相同分区，也会生成不同的分区目录。在之后的某个时刻（写入后的10～15分钟），ClickHouse会通过后台任务再将属于相同分区的多个目录合并成一个新的目录。
+
+
+
+
+
 #### MergeTree的存储结构
 
 ##### 一级索引（稀疏索引）
@@ -88,7 +96,7 @@ storage_policy：多路储存
 
 #### ttl
 
-##### 
+##### 在MergeTree中，可以为某个列字段或整张表设置TTL时间。若为列字段的TTL，当时间到期时，则会删除这一列的数据；若为表级别的TTL，当时间到期时，则会删除整张表的数据；若一张表同时设置了列级别和表级别的TTL，则会以先到期的为主。无论是列级别还是表级别的TTL，都需要依托于某个DateTime或Date类型的字段，通过对这个时间字段的INTERVAL操作，来描述TTL的过期时间，设置TTL过期时间的INTERVAL完整操作包括：SECOND、MINUTE、HOUR、DAY、WEEK、MONTH、QUARTER和YEAR。
 
 
 

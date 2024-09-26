@@ -53,7 +53,7 @@ export const enSidebar = sidebar({
     {
       text: "☎️ 面试",
       // icon: "book",
-      prefix: " interview/",
+      prefix: "interview/",
       children: "structure",
     },
     {
